@@ -44,22 +44,17 @@ app.post('/signup', async (req, res) => {
 })
 
 // updating user information
-app.put('/updateUser/:email', async (req, res) => {
+app.put('/updateUser/:username', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
-        if (req.params.email) {
-            const db = await client.db('Gmail_Clone')
-            let user = await db.collection('All Users').findOne({ email: req.params.email })
-            if (user) {
-                let user = await db.collection('All Users').updateOne({ email: req.params.email }, { $set: req.body })
-                res.status(200).send({ message: 'User info updated successfully' })
-            }
-            else {
-                res.status(400).send({ message: `User not found with email ${req.params.email}` })
-            }
+        const db = await client.db('Gmail_Clone')
+        let user = await db.collection('All Users').findOne({ username: req.params.username })
+        if (user) {
+            let user = await db.collection('All Users').updateOne({ username: req.params.username }, { $set: req.body })
+            res.status(200).send({ message: 'User info updated successfully' })
         }
         else {
-            res.status(400).send({ message: 'email is mandatory' })
+            res.status(400).send({ message: `User not found with email ${req.params.username}` })
         }
     }
     catch (error) {
