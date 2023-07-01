@@ -32,7 +32,6 @@ app.get('/login/:email', async (req, res) => {
     try {
         const db = await client.db('Gmail_Clone')
         let user = await db.collection('All Users').aggregate([{ $match: { username: req.params.email } }]).toArray()
-        // findOne({ username: req.params.email })
         if (user.length !== 0) {
             res.status(200).send({ message: "user found", data: user })
         }
@@ -66,18 +65,19 @@ app.post('/signup', async (req, res) => {
     }
 })
 
-// updating user information
-app.put('/updateUser/:username', async (req, res) => {
+// updating user information for password reset
+app.put('/updateUser/:email', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
         const db = await client.db('Gmail_Clone')
-        let user = await db.collection('All Users').findOne({ username: req.params.username })
-        if (user) {
-            let user = await db.collection('All Users').updateOne({ username: req.params.username }, { $set: req.body })
-            res.status(200).send({ message: 'User info updated successfully' })
+        let user = await db.collection('All Users').aggregate([{$match:{username: req.params.email}}]).toArray()
+        if (user.length!==0) {
+            await res.status(200).send({ message: 'user found' })
+            let user = await db.collection('All Users').updateOne({ username: req.params.email }, { $set: req.body })
+            await res.status(200).send({ message: 'password updated' })
         }
         else {
-            res.status(400).send({ message: `User not found with email ${req.params.username}` })
+            res.status(400).send({ message: `user not found` })
         }
     }
     catch (error) {
