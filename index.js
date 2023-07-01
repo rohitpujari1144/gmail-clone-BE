@@ -66,7 +66,7 @@ app.post('/signup', async (req, res) => {
 })
 
 // updating user information for password reset
-app.put('/updateUser/:email', async (req, res) => {
+app.put('/updateUser/:email/:securityKey', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
         const db = await client.db('Gmail_Clone')
