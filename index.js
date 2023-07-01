@@ -70,7 +70,7 @@ app.put('/updateUser/:email', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
         const db = await client.db('Gmail_Clone')
-        let user = await db.collection('All Users').aggregate([{$match:{username: req.params.email}}]).toArray()
+        let user = await db.collection('All Users').aggregate([{$match:{username: req.params.email, securityKey: req.params.securityKey}}]).toArray()
         if (user.length!==0) {
             await res.status(200).send({ message: 'user found' })
             let user = await db.collection('All Users').updateOne({ username: req.params.email }, { $set: req.body })
