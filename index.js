@@ -7,7 +7,7 @@ app.use(cors())
 app.use(express.json())
 const dbUrl = 'mongodb+srv://rohit10231:rohitkaranpujari@cluster0.kjynvxt.mongodb.net/?retryWrites=true&w=majority'
 const client = new MongoClient(dbUrl)
-const port = 6000
+const port = 4000
 
 // getting all users information
 app.get('/', async (req, res) => {
@@ -16,6 +16,29 @@ app.get('/', async (req, res) => {
         const db = await client.db('Gmail_Clone')
         let users = await db.collection('All Users').find().toArray()
         res.status(200).send(users)
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
+// user login
+app.get('/login/:email', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        let user = await db.collection('All Users').aggregate([{ $match: { username: req.params.email } }]).toArray()
+        // findOne({ username: req.params.email })
+        if (user.length !== 0) {
+            res.status(200).send({ message: "user found", data: user })
+        }
+        else {
+            res.send({ message: "user not found" })
+        }
     }
     catch (error) {
         console.log(error);
@@ -92,12 +115,12 @@ app.delete('/deleteUser/:email', async (req, res) => {
     }
 })
 
-// get one user info
+// // get one user info
 app.get('/getUser/:username', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
         const db = await client.db('Gmail_Clone')
-        let user = await db.collection('All Users').findOne({username:req.params.username})
+        let user = await db.collection('All Users').findOne({ username: req.params.username })
         res.status(200).send(user)
     }
     catch (error) {
