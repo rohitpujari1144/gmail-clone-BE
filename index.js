@@ -31,9 +31,40 @@ app.get('/login/:email', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
         const db = await client.db('Gmail_Clone')
+
+        // for first step of login, email check
         let user = await db.collection('All Users').aggregate([{ $match: { username: req.params.email } }]).toArray()
-        if (user.length !== 0) {
+
+        // for password change flow
+        let userNames = await db.collection('All Users').aggregate([{ $match: { firstName: req.body.firstName, lastName: req.body.lastName, mobile: req.body.mobile } }]).toArray()
+
+        if (user.length !== 0 || user.length !== 0) {
             res.status(200).send({ message: "user found", data: user })
+        }
+        else {
+            res.send({ message: "user not found" })
+        }
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
+// get user for forgot email flow
+app.get('/user/:firstName/:lastName/:mobile', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+
+        // for password change flow
+        let userNames = await db.collection('All Users').aggregate([{ $match: { firstName: req.params.firstName, lastName: req.params.lastName, mobile: req.params.mobile } }]).toArray()
+
+        if (userNames.length !== 0) {
+            res.status(200).send({ message: "user found", data: userNames })
         }
         else {
             res.send({ message: "user not found" })
@@ -70,8 +101,8 @@ app.put('/updateUser/:email/:securityKey', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
         const db = await client.db('Gmail_Clone')
-        let user = await db.collection('All Users').aggregate([{$match:{username: req.params.email, securityKey: req.params.securityKey}}]).toArray()
-        if (user.length!==0) {
+        let user = await db.collection('All Users').aggregate([{ $match: { username: req.params.email, securityKey: req.params.securityKey } }]).toArray()
+        if (user.length !== 0) {
             await res.status(200).send({ message: 'user found' })
             let user = await db.collection('All Users').updateOne({ username: req.params.email }, { $set: req.body })
             await res.status(200).send({ message: 'password updated' })
