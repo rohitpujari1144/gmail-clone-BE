@@ -77,7 +77,7 @@ app.put('/updateUser/:email', async (req, res) => {
             await res.status(200).send({ message: 'password updated' })
         }
         else {
-            res.status(400).send({ message: `user not found` })
+            res.send({ message: `user not found` })
         }
     }
     catch (error) {
