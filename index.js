@@ -60,11 +60,11 @@ app.get('/user/:firstName/:lastName/:mobile', async (req, res) => {
     try {
         const db = await client.db('Gmail_Clone')
 
-        // for password change flow
-        let userNames = await db.collection('All Users').aggregate([{ $match: { firstName: req.params.firstName, lastName: req.params.lastName, mobile: req.params.mobile } }]).toArray()
+        // for forgot email flow
+        let user = await db.collection('All Users').aggregate([{ $match: { firstName: req.params.firstName, lastName: req.params.lastName, mobile: req.params.mobile } }]).toArray()
 
-        if (userNames.length !== 0) {
-            res.status(200).send({ message: "user found", data: userNames })
+        if (user.length !== 0) {
+            res.status(200).send({ message: "user found", data: user })
         }
         else {
             res.send({ message: "user not found" })
@@ -146,7 +146,7 @@ app.delete('/deleteUser/:email', async (req, res) => {
     }
 })
 
-// // get one user info
+// get one user info
 app.get('/getUser/:username', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
