@@ -54,15 +54,14 @@ app.get('/login/:email', async (req, res) => {
     }
 })
 
-// get user for forgot email flow
-app.get('/user/:firstName/:lastName/:mobile', async (req, res) => {
+// get user info for forgot email flow
+app.get('/user/:firstName/:lastName/:securityKey', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
         const db = await client.db('Gmail_Clone')
 
         // for forgot email flow
-        let user = await db.collection('All Users').aggregate([{ $match: { firstName: req.params.firstName, lastName: req.params.lastName, mobile: req.params.mobile } }]).toArray()
-
+        let user = await db.collection('All Users').aggregate([{ $match: { firstName: req.params.firstName, lastName: req.params.lastName, securityKey: req.params.securityKey } }]).toArray()
         if (user.length !== 0) {
             res.status(200).send({ message: "user found", data: user })
         }
