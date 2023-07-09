@@ -8,6 +8,7 @@ app.use(express.json())
 const dbUrl = 'mongodb+srv://rohit10231:rohitkaranpujari@cluster0.kjynvxt.mongodb.net/?retryWrites=true&w=majority'
 const client = new MongoClient(dbUrl)
 const port = 4000
+const bcrypt = require('bcrypt')
 
 // getting all users information
 app.get('/', async (req, res) => {
@@ -83,8 +84,17 @@ app.post('/signup', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
         const db = await client.db('Gmail_Clone')
+        // const user = await db.collection('All Users').aggregate([{ $match: { username: req.body.username } }]).toArray()
+        // if (user.length === 0) {
+        const salt = await bcrypt.genSalt(10)
+        const secPassword = await bcrypt.hash(req.body.password, salt)
+        req.body.password = secPassword
         await db.collection('All Users').insertOne(req.body)
         res.status(201).send({ message: 'User Registartion Successful', data: req.body })
+        // }
+        // else {
+        //     res.send({ message: 'email id already exist' })
+        // }
     }
     catch (error) {
         console.log(error);
